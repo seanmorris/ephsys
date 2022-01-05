@@ -1,0 +1,42 @@
+name: Deploy Verify Worker
+
+on:
+  push:
+    branches:
+      - '**'
+
+    paths:
+      - .cloudflare/workers/verify/**
+      - .github/workflows/deploy-verify-worker.yml
+
+jobs:
+  publish-workers:
+    name:    Deploy Verify Worker
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Checking Existing Worker
+        run:  'set -eux; curl https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$SCRIPT_NAME -H "Authorization: Bearer $CF_API_TOKEN"'
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          SCRIPT_NAME: ephsys-verify
+
+      - name: Delete Existing Worker
+        run:  'set -eux; curl -X DELETE https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$SCRIPT_NAME -H "Authorization: Bearer $CF_API_TOKEN"'
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          SCRIPT_NAME: ephsys-verify
+
+      - name: Deploy
+        run: set -eux; curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - && sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && sudo apt-get update && sudo apt-get install terraform && terraform init && terraform plan && terraform apply --auto-approve
+        working-directory: .cloudflare/workers/verify
+        env:
+          TF_VAR_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_CLOUDFLARE_HOSTNAME: ${{ secrets.CLOUDFLARE_HOSTNAME }}
+          TF_VAR_CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
