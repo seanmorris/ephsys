@@ -1,6 +1,10 @@
+window = globalThis;
+
 async function handleRequest(request)
 {
-	
+	return new Response('status: ok.', {
+		headers: new Headers({'content-type': 'text/plain'})
+	});
 }
 
 addEventListener('fetch', event => {

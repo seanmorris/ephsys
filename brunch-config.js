@@ -5,9 +5,6 @@ module.exports.files = {
       'app/client.js': 'app.js'
       , 'app/edge-worker-verify.js': '../.cloudflare/workers/verify/index.js'
     }
-    , joinTo: {
-      'vendor.js': [/node_modules\/.+?/, 'vendor/web3.min.js']
-    }
   }
 };
 
