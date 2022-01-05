@@ -20,7 +20,7 @@ provider "cloudflare" {
 }
 
 resource "cloudflare_worker_script" "verify_script" {
-	name    = "green-tea-verify"
+	name    = "ephsys-verify"
 	content = file("index.js")
 }
 
