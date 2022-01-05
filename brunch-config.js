@@ -15,11 +15,6 @@ module.exports.watcher = {
 	usePolling: true
 };
 
-module.modules = {
-  definition: false
-  , wrapper:  false
-};
-
 module.exports.plugins = {
   
   babel: {
@@ -42,6 +37,11 @@ module.exports.plugins = {
   }
 
 };
+
+module.exports.modules = { autoRequire: {
+  '../.cloudflare/workers/verify/index.js': ['edge-worker-verify']
+  , 'app.js': ['client']
+}};
 
 module.exports.paths = {
   public: './docs'
