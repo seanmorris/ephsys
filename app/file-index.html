@@ -1,0 +1,8 @@
+<div>[[mediaView]]</div>
+
+<small><pre>[[tokenString]]</pre></small>
+<small cv-if = "validTimer">Token valid for [[validTimer]]</small>
+
+<ul cv-each = "files:file">
+	<li><a cv-link cv-on = "click:getAsset(event, file)">[[file]]</a></li>
+</ul>
