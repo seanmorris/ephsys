@@ -6,7 +6,6 @@ import { Strings     } from './Strings';
 
 export class Sign extends View
 {
-
 	constructor(args, parent)
 	{
 		super(args, parent);

@@ -55,7 +55,6 @@ export const Application = window.Application = Bindable.make(class {
 		.request({ method: 'personal_sign', params: [hex, Application.userAddress] })
 		.then(result => Application.onSignSuccess(result))
 		.catch(error => Application.onSignFailed(error));
-
 	}
 
 	static onSignSuccess(result)
@@ -72,14 +71,6 @@ export const Application = window.Application = Bindable.make(class {
 
 	static verify(message, signature)
 	{
-		// console.log(message, signature);
-
-		// console.log(Application.web3.eth.personal.ecRecover(
-		// 	Application.web3.utils.utf8ToHex(message)
-		// 	, signature
-		// ));
-
-
 		const encoded = Application.web3.utils.utf8ToHex(message);
 
 		return Application.web3.eth.personal.ecRecover(encoded, signature)

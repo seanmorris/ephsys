@@ -7,4 +7,7 @@ export class Strings
 	static MSG_SIG_VERIFIED  = address => `✓ Verified message from ${address}.`;
 	static ERR_SIG_INVALID   = address => `× Signature corrupt or invalid!`;
 
+
+	static MSG_CHALLENGE_VERIFIED = address => `✓ Challenge solved!.`;
+	static ERR_CHALLENGE_FAILED   = address => `× Challenge failed.`;
 }

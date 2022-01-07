@@ -17,11 +17,12 @@ export class Login extends View
 			this.args.status = Application.ERROR_NOTFOUND_WEB3;
 		}
 		
-		this.args.status = 'waiting...';
+		this.args.status = '...';
 
 		const debind = Application.bindTo('userAddress', v => {
 			if(!v) { return; }
 			this.args.status = Strings.MSG_USER_WELCOME(v);
+			this.remove();
 		});
 
 		this.onRemove(debind);
