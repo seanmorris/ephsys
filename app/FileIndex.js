@@ -90,7 +90,7 @@ export class FileIndex extends View
 			});
 		}
 
-		if(file.substr(-4) === 'html' || file.substr(-4) === 'json')
+		if(file.substr(-3) === 'pdf' || file.substr(-4) === 'html' || file.substr(-4) === 'json')
 		{
 			fetch(`${Config.mediaGate}/media/show?assetPath=${file}`, options)
 			.then(response => response.blob())
