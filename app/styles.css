@@ -1,5 +1,6 @@
 html {
 	font-family: monospace;
+	overflow-y: scroll;
 }
 
 textarea {
@@ -10,4 +11,8 @@ textarea {
 iframe {
 	width: 100%;
 	min-height: 12em;
+}
+
+svg {
+	width: 120px;
 }

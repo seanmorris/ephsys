@@ -2,6 +2,7 @@ import { rawquire } from 'rawquire/rawquire.macro';
 import { View } from 'curvature/base/View';
 
 import { Application } from './Application';
+import { Loader      } from './Loader';
 import { Strings     } from './Strings';
 
 import { Image } from './media-view/Image';
@@ -50,7 +51,7 @@ export class FileIndex extends View
 	{
 		event.preventDefault();
 
-		this.args.mediaView = '===';
+		this.args.mediaView = new Loader;
 
 		file = file.replace(/\.\//, '');
 
