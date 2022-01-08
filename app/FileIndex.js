@@ -105,7 +105,7 @@ export class FileIndex extends View
 			fetch(`${Config.mediaGate}/media/show?assetPath=${file}`, options)
 			.then(response => response.blob())
 			.then(response => {
-				const src = URL.createObjectURL(response, {type: 'application/' + file.substr(-4)});
+				const src = URL.createObjectURL(response, {type: 'application/' + file.substr(-3)});
 				this.args.mediaView = new Doc({src});
 			});
 		}
