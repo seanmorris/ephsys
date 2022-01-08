@@ -90,12 +90,22 @@ export class FileIndex extends View
 			});
 		}
 
-		if(file.substr(-3) === 'pdf' || file.substr(-4) === 'html' || file.substr(-4) === 'json')
+		if(file.substr(-4) === 'html' || file.substr(-4) === 'json')
 		{
 			fetch(`${Config.mediaGate}/media/show?assetPath=${file}`, options)
 			.then(response => response.blob())
 			.then(response => {
 				const src = URL.createObjectURL(response, {type: 'text/' + file.substr(-4)});
+				this.args.mediaView = new Doc({src});
+			});
+		}
+
+		if(file.substr(-3) === 'pdf')
+		{
+			fetch(`${Config.mediaGate}/media/show?assetPath=${file}`, options)
+			.then(response => response.blob())
+			.then(response => {
+				const src = URL.createObjectURL(response, {type: 'application/' + file.substr(-4)});
 				this.args.mediaView = new Doc({src});
 			});
 		}
