@@ -77,7 +77,7 @@ export class FileIndex extends View
 		const options = {
 			credentials: 'include'
 			, headers: { Authorization: `Bearer ${JSON.stringify(Application.token)}` }
-			, timeout: 5000
+			, timeout: 7000
 		};
 		
 		file = file.replace(/\.\//, '');
@@ -92,7 +92,7 @@ export class FileIndex extends View
 		
 		elicit.addEventListener('firstByte', event => loader.args.forward = true);		
 		
-		elicit.addEventListener('complete', event => {
+		elicit.addEventListener('complete', event => setTimeout(() => {
 			if(file.substr(-3) === 'jpg' || file.substr(-3) === 'png')
 			{
 				elicit.objectUrl().then(src => this.args.mediaView = new Image({src}));
@@ -119,20 +119,31 @@ export class FileIndex extends View
 			}
 
 			this.elicit = null;
-		});
+		}, 400));
 
 		elicit.addEventListener('progress', event => {
 			loader.args.received = Number(event.detail.received / 1024).toFixed(0);
 			loader.args.length   = Number(event.detail.length / 1024).toFixed(0);
 			loader.args.done     = Number(event.detail.done * 100).toFixed(2);
+
+			if(!elicit.speed)
+			{
+				loader.args.dlSpeed = '';
+				return;
+			}
+
+			if(event.detail.done === 1)
+			{
+				loader.args.speed = 0.1515;
+			}
 			
 			if(elicit.speed < 1024)
 			{
-				loader.args.dlSpeed = Number(elicit.speed).toFixed(2) + ' KBps';
+				loader.args.dlSpeed = Number(elicit.speed).toFixed(2) + ' KBps ';
 			}
 			else
 			{
-				loader.args.dlSpeed = Number(elicit.speed / 1024).toFixed(2) + ' MBps';;
+				loader.args.dlSpeed = Number(elicit.speed / 1024).toFixed(2) + ' MBps ';
 			}
 		});
 

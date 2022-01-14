@@ -32,5 +32,8 @@
 </svg>
 <div cv-if = "received" class = "loader-progress">
 	<p>[[received]] KB / [[length]] KB</p>
-	<p>[[dlSpeed]], [[done]]%</p>
+	<p>[[dlSpeed]][[done]]%</p>
+</div>
+<div cv-if = "!received" class = "loader-progress">
+	<pre>Waiting for Server[[elipsis]]</pre>
 </div>

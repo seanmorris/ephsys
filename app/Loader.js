@@ -43,5 +43,13 @@ export class Loader extends View
 
 			this.args.speed    = 0.333;
 		});
+
+		let dots = 0;
+		this.args.elipsis = '   ';
+
+		this.onInterval(100, ()=>{
+			const d = ++dots % 4;
+			this.args.elipsis = '.'.repeat(d) + ' '.repeat(3 - d);
+		});
 	}
 }
