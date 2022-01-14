@@ -151,12 +151,6 @@ export class FileIndex extends View
 	{
 		if(this.elicit && !this.elicit.done)
 		{
-			this.elicit.paused
-				? this.elicit.unpause()
-				: this.elicit.pause();
-
-			return;
-			
 			this.elicit.cancel();
 		}
 
