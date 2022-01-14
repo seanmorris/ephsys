@@ -1,11 +1,13 @@
 import { Bindable } from 'curvature/base/Bindable';
 import { Strings } from './Strings';
+import { Config } from './Config';
 	
 export const Application = window.Application = Bindable.make(class {
 
 	userAddress;
 	_web3;
 	message;
+	price;
 
 	static get web3()
 	{
@@ -88,5 +90,45 @@ export const Application = window.Application = Bindable.make(class {
 	static onVerifyFailed(error)
 	{
 		console.warn(error);
+	}
+
+	static getPrice()
+	{
+		return fetch(`${Config.mediaGate}/purchase/price`)
+		.then(response => response.json())
+		.then(price => {
+			return Application.price = price;
+		})
+	}
+
+	static subscribe()
+	{
+		if(!Application.price)
+		{
+			console.warn('Load price data before subscribing.')
+
+			return;
+		}
+
+		const web3 = Application.web3;
+
+		web3.eth.sendTransaction(
+			{
+				value:  Application.web3.utils.toWei(String(Application.price.ETH), "ether")
+	            , from: Application.userAddress
+				, to:   '0xb69d279409d0f232fdb6eaefea6cdf67fa504c00'
+			}
+			, (err, res) => console.log(err, res)
+		);
+	}
+
+	static getSubscription()
+	{
+		return fetch(`${Config.mediaGate}/purchase/status/${Application.userAddress}`)
+		.then(response => response.json())
+		.then(subscription => {
+			console.log(subscription);
+			return subscription;
+		})
 	}
 });

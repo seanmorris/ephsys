@@ -15,18 +15,34 @@ export class Challenge extends View
 		this.template = rawquire('./challenge.html');
 
 		this.args.status = '...';
+		this.args.solved = false;
+
+		this.args.disabled = true;
 
 		if(!Application.ethereum)
 		{
 			this.args.status = Application.ERROR_NOTFOUND_WEB3;
 		}
 
-		const debind = Application.bindTo('userAddress', v => {
+		const debindSolved = Application.bindTo('solved', v => {
+			this.args.solved = v;
+			if(!v)
+			{
+				this.args.challenge = '';
+				this.args.status = '';
+				this.args.retort = '';
+				this.args.result = '';
+			}
+		});
+
+		const debindAddress = Application.bindTo('userAddress', v => {
+			this.args.disabled = !v;
 			if(!v) { return; }
 			this.args.address = v;
 		});
 
-		this.onRemove(debind);
+		this.onRemove(debindSolved);
+		this.onRemove(debindAddress);
 	}
 
 	onStartClicked(event)
@@ -69,11 +85,15 @@ export class Challenge extends View
 
 				if(result.response.valid)
 				{
-					this.args.status = Strings.MSG_CHALLENGE_VERIFIED();
+					this.onTimeout(150, () => {
+						this.args.status = Strings.MSG_CHALLENGE_VERIFIED();
+						Application.solved = true;
+					});
 				}
 				else
 				{
 					this.args.status = Strings.ERR_CHALLENGE_FAILED();
+					Application.solved = false;						
 				}
 			});
 

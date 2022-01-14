@@ -1,14 +1,17 @@
-<h1>Solve Challenge</h1>
-<p><small>Solving as [[address]]</small></p>
-<p><button cv-on = "click:onStartClicked(event)">start</button></p>
+<span class = "content" cv-if = "!solved">
+<h2>Solve Challenge</h2>
 
-<p>challenge:</p>
-<textarea cv-bind = "challenge"></textarea>
+	<p><small>Solving as [[address]]</small></p>
+	<p cv-if = "!disabled"><button cv-on = "click:onStartClicked(event)">start</button></p>
 
-<p>retort:</p>
-<textarea cv-bind = "retort"></textarea>
+	<p>challenge:</p>
+	<textarea cv-bind = "challenge"></textarea>
 
-<p>result:</p>
-<textarea cv-bind = "result"></textarea>
+	<p>retort:</p>
+	<textarea cv-bind = "retort"></textarea>
+
+	<p>result:</p>
+	<textarea cv-bind = "result"></textarea>
+</span>
 
 <p><small>[[status]]</small></p>

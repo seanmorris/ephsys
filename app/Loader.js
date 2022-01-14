@@ -10,7 +10,8 @@ export class Loader extends View
 
 		this.template         = rawquire('./loader.svg');
 		this.args.repeatCount = 'indefinite';
-		this.args.color       = '#000';
+		// this.args.color    = '#000';
+		this.args.color       = '#FFF';
 		this.args.speed       = 0.333;
 
 		this.args.bindTo('speed', v=>{

@@ -44,6 +44,12 @@ export class FileIndex extends View
 			this.args.validTimer = Number(Math.max(
 				0, Application.challenge.validThru - (Date.now() / 1000)).toFixed(3
 			));
+
+			if(!this.args.validTimer)
+			{
+				Application.solved = false;
+				this.args.files = [];
+			}
 		});		
 	}
 
@@ -109,5 +115,20 @@ export class FileIndex extends View
 				this.args.mediaView = new Doc({src});
 			});
 		}
+	}
+
+	closeMediaView(event)
+	{
+		if(!event.target.matches('div.media-view'))
+		{
+			return;
+		}
+
+		if(this.args.mediaView)
+		{
+			this.args.mediaView.remove();
+		}
+
+		this.args.mediaView = null;
 	}
 }

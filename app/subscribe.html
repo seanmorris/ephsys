@@ -1,0 +1,9 @@
+<h2>Subscribe</h2>
+<span class = "contents" cv-if = "alreadySubscribed">
+	✓ Already subscribed. Expires on [[expires]].
+</span>
+<p>~$[[usdPrice]]</p>
+<p><small>ETH [[ethPrice]]</small></p>
+<span class = "contents" cv-if = "!alreadySubscribed">
+	<p><button disabled = "[[disable]]" cv-on = "click:onSubscribeClicked(event)">subscribe</button></p>
+</span>

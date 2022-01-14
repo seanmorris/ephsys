@@ -1,4 +1,5 @@
 export const Config = {
-	mediaGate: '//media-gate.herokuapp.com'
-	// mediaGate: '//localhost:2020'
+	mediaGate: location.origin.match(/.seanmorr.is$/)
+		? '//media-gate.herokuapp.com'
+		: '//127.0.0.1.nip.io:2020'
 }
