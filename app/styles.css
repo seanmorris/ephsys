@@ -35,6 +35,10 @@ textarea {
 	text-align: center;
 }
 
+.loader-progress:empty {
+	display: none;
+}
+
 .media-view:empty {
 	pointer-events: none;
 }

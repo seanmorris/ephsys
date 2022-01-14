@@ -61,14 +61,7 @@ export class FileIndex extends View
 		event.preventDefault();
 
 		const loader = this.args.mediaView = new Loader;
-
-		file = file.replace(/\.\//, '');
-
-		const options = {
-			credentials: 'include'
-			, headers: { Authorization: `Bearer ${JSON.stringify(Application.token)}` }
-		};
-
+		
 		loader.args.received = 0;
 		loader.args.length   = 0;
 		loader.args.done     = 0;
@@ -81,71 +74,92 @@ export class FileIndex extends View
 
 		loader.args.speed    = 0.333 * 2;
 
-		const onProgress = event => {
+		const options = {
+			credentials: 'include'
+			, headers: { Authorization: `Bearer ${JSON.stringify(Application.token)}` }
+			, timeout: 5000
+		};
+		
+		file = file.replace(/\.\//, '');
+
+		const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
+
+		this.elicit = elicit;
+		
+		elicit.catch(error => console.warn(error));
+
+		elicit.addEventListener('error', event => event.preventDefault());		
+		
+		elicit.addEventListener('firstByte', event => loader.args.forward = true);		
+		
+		elicit.addEventListener('complete', event => {
+			if(file.substr(-3) === 'jpg' || file.substr(-3) === 'png')
+			{
+				elicit.objectUrl().then(src => this.args.mediaView = new Image({src}));
+			}
+
+			if(file.substr(-3) === 'mp3' || file.substr(-3) === 'wav')
+			{
+				elicit.objectUrl().then(src => this.args.mediaView = new Audio({src}));
+			}
+
+			if(file.substr(-3) === 'mp4')
+			{
+				elicit.objectUrl().then(src => this.args.mediaView = new Video({src}));
+			}
+
+			if(file.substr(-4) === 'html' || file.substr(-4) === 'json')
+			{
+				elicit.objectUrl().then(src => this.args.mediaView = new Doc({src}));
+			}
+
+			if(file.substr(-3) === 'pdf')
+			{
+				elicit.objectUrl().then(src => this.args.mediaView = new Doc({src}));
+			}
+
+			this.elicit = null;
+		});
+
+		elicit.addEventListener('progress', event => {
 			loader.args.received = Number(event.detail.received / 1024).toFixed(0);
 			loader.args.length   = Number(event.detail.length / 1024).toFixed(0);
-			loader.args.done     = Number(event.detail.done * 100).toFixed(4);
-
-			if(event.detail.received > 0)
+			loader.args.done     = Number(event.detail.done * 100).toFixed(2);
+			
+			if(elicit.speed < 1024)
 			{
-				loader.args.rotFrom  = 0;
-				loader.args.rotTo    = 360;
-
-				loader.args.dashFrom = 0;
-				loader.args.dashTo   = 628;
-
-				loader.args.speed    = 0.333;
+				loader.args.dlSpeed = Number(elicit.speed).toFixed(2) + ' KBps';
 			}
-		};
+			else
+			{
+				loader.args.dlSpeed = Number(elicit.speed / 1024).toFixed(2) + ' MBps';;
+			}
+		});
 
-		if(file.substr(-3) === 'jpg' || file.substr(-3) === 'png')
-		{
-			const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
+		elicit.addEventListener('fail', event => {
+			if(this.args.mediaView)
+			{
+				this.args.mediaView.remove();
+			}
 
-			elicit.objectUrl().then(src => this.args.mediaView = new Image({src}));
+			this.args.mediaView = null;
+		});
 
-			elicit.addEventListener('progress', onProgress);
-		}
-
-		if(file.substr(-3) === 'mp3' || file.substr(-3) === 'wav')
-		{
-			const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
-
-			elicit.objectUrl().then(src => this.args.mediaView = new Audio({src}));
-
-			elicit.addEventListener('progress', onProgress);
-		}
-
-		if(file.substr(-3) === 'mp4')
-		{
-			const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
-
-			elicit.objectUrl().then(src => this.args.mediaView = new Video({src}));
-
-			elicit.addEventListener('progress', onProgress);
-		}
-
-		if(file.substr(-4) === 'html' || file.substr(-4) === 'json')
-		{
-			const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
-
-			elicit.objectUrl().then(src => this.args.mediaView = new Doc({src}));
-
-			elicit.addEventListener('progress', onProgress);
-		}
-
-		if(file.substr(-3) === 'pdf')
-		{
-			const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
-
-			elicit.objectUrl().then(src => this.args.mediaView = new Doc({src}));
-
-			elicit.addEventListener('progress', onProgress);
-		}
 	}
 
 	closeMediaView(event)
 	{
+		if(this.elicit && !this.elicit.done)
+		{
+			this.elicit.paused
+				? this.elicit.unpause()
+				: this.elicit.pause();
+
+			return;
+			
+			this.elicit.cancel();
+		}
+
 		if(!event.target.matches('div.media-view'))
 		{
 			return;
