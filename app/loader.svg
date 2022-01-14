@@ -15,16 +15,16 @@
 			attributeName = "transform"
 			attributeType = "XML"
 			type          = "rotate"
-			from          = "0   50 50"
-			to            = "360 50 50"
+			from          = "[[rotFrom]] 50 50"
+			to            = "[[rotTo]] 50 50"
 			dur           = "[[speed]]s"
 			repeatCount   = "[[repeatCount]]"
 		/>
 		<animate
 			attributeName = "stroke-dashoffset"
 			attributeType = "XML"
-			from          = "0px"
-			to            = "628px"
+			from          = "[[dashFrom]]px"
+			to            = "[[dashTo]]px"
 			dur           = "[[halfSpeed]]s"
 			repeatCount   = "[[repeatCount]]"
 		/>

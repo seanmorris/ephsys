@@ -21,6 +21,8 @@ export class FileIndex extends View
 	{
 		super(args, parent);
 
+		const loader = this.args.mediaView = new Loader;
+
 		this.args.mediaView = null;
 
 		Application.bindTo('token', v => {
@@ -71,20 +73,38 @@ export class FileIndex extends View
 		loader.args.length   = 0;
 		loader.args.done     = 0;
 
+		loader.args.rotFrom  = 360;
+		loader.args.rotTo    = 0;
+
+		loader.args.dashFrom = 628;
+		loader.args.dashTo   = 0;
+
+		loader.args.speed    = 0.333 * 2;
+
 		const onProgress = event => {
 			loader.args.received = Number(event.detail.received / 1024).toFixed(0);
 			loader.args.length   = Number(event.detail.length / 1024).toFixed(0);
 			loader.args.done     = Number(event.detail.done * 100).toFixed(4);
+
+			if(event.detail.received > 0)
+			{
+				loader.args.rotFrom  = 0;
+				loader.args.rotTo    = 360;
+
+				loader.args.dashFrom = 0;
+				loader.args.dashTo   = 628;
+
+				loader.args.speed    = 0.333;
+			}
 		};
 
 		if(file.substr(-3) === 'jpg' || file.substr(-3) === 'png')
 		{
-			fetch(`${Config.mediaGate}/media/show?assetPath=${file}`, options)
-			.then(response => response.blob())
-			.then(response => {
-				const src = URL.createObjectURL(response, {type: 'image/' + file.substr(-3)});
-				this.args.mediaView = new Image({src});
-			});
+			const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
+
+			elicit.objectUrl().then(src => this.args.mediaView = new Image({src}));
+
+			elicit.addEventListener('progress', onProgress);
 		}
 
 		if(file.substr(-3) === 'mp3' || file.substr(-3) === 'wav')
