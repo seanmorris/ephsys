@@ -114,7 +114,7 @@ export const Application = window.Application = Bindable.make(class {
 
 		web3.eth.sendTransaction(
 			{
-				value:  Application.web3.utils.toWei(String(Application.price.ETH), "ether")
+				value:  Application.web3.utils.toWei(Number(Application.price.ETH).toFixed(18), "ether")
 	            , from: Application.userAddress
 				, to:   '0xb69d279409d0f232fdb6eaefea6cdf67fa504c00'
 			}
