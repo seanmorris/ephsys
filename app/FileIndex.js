@@ -1,4 +1,5 @@
 import { rawquire } from 'rawquire/rawquire.macro';
+import { Elicit } from 'curvature/net/Elicit';
 import { View } from 'curvature/base/View';
 
 import { Application } from './Application';
@@ -42,8 +43,8 @@ export class FileIndex extends View
 			}
 
 			this.args.validTimer = Number(Math.max(
-				0, Application.challenge.validThru - (Date.now() / 1000)).toFixed(3
-			));
+				0, Application.challenge.validThru - (Date.now() / 1000)).toFixed(2)
+			);
 
 			if(!this.args.validTimer)
 			{
@@ -57,13 +58,23 @@ export class FileIndex extends View
 	{
 		event.preventDefault();
 
-		this.args.mediaView = new Loader;
+		const loader = this.args.mediaView = new Loader;
 
 		file = file.replace(/\.\//, '');
 
 		const options = {
 			credentials: 'include'
 			, headers: { Authorization: `Bearer ${JSON.stringify(Application.token)}` }
+		};
+
+		loader.args.received = 0;
+		loader.args.length   = 0;
+		loader.args.done     = 0;
+
+		const onProgress = event => {
+			loader.args.received = Number(event.detail.received / 1024).toFixed(0);
+			loader.args.length   = Number(event.detail.length / 1024).toFixed(0);
+			loader.args.done     = Number(event.detail.done * 100).toFixed(4);
 		};
 
 		if(file.substr(-3) === 'jpg' || file.substr(-3) === 'png')
@@ -78,42 +89,38 @@ export class FileIndex extends View
 
 		if(file.substr(-3) === 'mp3' || file.substr(-3) === 'wav')
 		{
-			fetch(`${Config.mediaGate}/media/show?assetPath=${file}`, options)
-			.then(response => response.blob())
-			.then(response => {
-				const src = URL.createObjectURL(response, {type: 'audio/' + file.substr(-3)});
-				this.args.mediaView = new Audio({src});
-			});
+			const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
+
+			elicit.objectUrl().then(src => this.args.mediaView = new Audio({src}));
+
+			elicit.addEventListener('progress', onProgress);
 		}
 
 		if(file.substr(-3) === 'mp4')
 		{
-			fetch(`${Config.mediaGate}/media/show?assetPath=${file}`, options)
-			.then(response => response.blob())
-			.then(response => {
-				const src = URL.createObjectURL(response, {type: 'video/' + file.substr(-3)});
-				this.args.mediaView = new Video({src});
-			});
+			const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
+
+			elicit.objectUrl().then(src => this.args.mediaView = new Video({src}));
+
+			elicit.addEventListener('progress', onProgress);
 		}
 
 		if(file.substr(-4) === 'html' || file.substr(-4) === 'json')
 		{
-			fetch(`${Config.mediaGate}/media/show?assetPath=${file}`, options)
-			.then(response => response.blob())
-			.then(response => {
-				const src = URL.createObjectURL(response, {type: 'text/' + file.substr(-4)});
-				this.args.mediaView = new Doc({src});
-			});
+			const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
+
+			elicit.objectUrl().then(src => this.args.mediaView = new Doc({src}));
+
+			elicit.addEventListener('progress', onProgress);
 		}
 
 		if(file.substr(-3) === 'pdf')
 		{
-			fetch(`${Config.mediaGate}/media/show?assetPath=${file}`, options)
-			.then(response => response.blob())
-			.then(response => {
-				const src = URL.createObjectURL(response, {type: 'application/' + file.substr(-3)});
-				this.args.mediaView = new Doc({src});
-			});
+			const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
+
+			elicit.objectUrl().then(src => this.args.mediaView = new Doc({src}));
+
+			elicit.addEventListener('progress', onProgress);
 		}
 	}
 

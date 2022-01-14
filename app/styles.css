@@ -9,10 +9,6 @@ textarea {
 	min-height: 80px;
 }
 
-svg {
-	width: 120px;
-}
-
 .media-view {
 	position: fixed;
 	top: 0px;
@@ -22,8 +18,21 @@ svg {
 	display: flex;
 	align-content: center;
 	justify-content: center;
+	align-items: center;
+	flex-direction: column;
 	overflow: auto;
 	z-index: 1;
+}
+
+.loader-progress {
+	color: white;
+	text-shadow: 1px 1px 0px black;
+	font-weight: bold;
+	background-color: rgba(0, 0, 0, 0.5);
+	padding-left: 1rem;
+	padding-right: 1rem;
+	margin: 1rem;
+	text-align: center;
 }
 
 .media-view:empty {
@@ -55,4 +64,13 @@ svg {
 	top: 0.5rem;
 	left: 0.5rem;
 	background-color: #FFF;
+}
+
+svg {
+	width: 120px;
+	margin: 1rem;
+}
+
+small {
+	font-size: 11px;
 }

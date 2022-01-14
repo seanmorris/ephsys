@@ -6,5 +6,5 @@ import { Strings     } from '../Strings';
 
 export class Video extends View
 {
-	template = '<video controls cv-attr = "src:src" />'
+	template = '<video autoplay controls cv-attr = "src:src" />'
 }

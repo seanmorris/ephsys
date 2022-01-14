@@ -30,3 +30,7 @@
 		/>
 	</ellipse>
 </svg>
+<div class = "loader-progress">
+	<p>[[received]] / [[length]]kb</p>
+	<p>[[done]]%</p>
+</div>

@@ -6,5 +6,5 @@ import { Strings     } from '../Strings';
 
 export class Audio extends View
 {
-	template = '<audio controls cv-attr = "src:src"></audio>'
+	template = '<audio autoplay controls cv-attr = "src:src"></audio>'
 }
