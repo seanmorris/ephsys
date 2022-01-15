@@ -36,6 +36,7 @@ textarea {
 	box-shadow: 0.0rem 0.5rem  0.25rem rgba(32,32,32,0.5);
 	min-width: 220px;
 	user-select: none;
+	backdrop-filter: blur(2px);
 }
 
 .loader-progress:empty {

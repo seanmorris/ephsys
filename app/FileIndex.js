@@ -33,11 +33,9 @@ export class FileIndex extends View
 			fetch(`${Config.mediaGate}/media`)
 			.then(response => response.json())
 			.then(response => this.args.files = response);
-
 		});
 
 		this.onFrame(() => {
-
 			if(!Application.challenge)
 			{
 				this.args.validTimer = 0;
@@ -60,14 +58,13 @@ export class FileIndex extends View
 	{
 		event.preventDefault();
 
-		const authorization = `Bearer ${JSON.stringify(Application.token)}`;
+		const Authorization = `Bearer ${JSON.stringify(Application.token)}`;
 		const loader = this.args.mediaView = new Loader;
 
 		const options = {
 			credentials: 'include'
-			, headers: { authorization }
+			, headers: { Authorization }
 			, timeout: 7000
-			, defer:   true
 		};
 
 		file = file.replace(/\.\//, '');
@@ -76,47 +73,37 @@ export class FileIndex extends View
 
 		this.elicit = elicit;
 
-		elicit.catch(error => console.warn(error));
-
-		elicit.addEventListener('error',   event => event.preventDefault());
-		elicit.addEventListener('headers', event => console.log(event));
-
-		elicit.addEventListener('paused',  event => loader.args.dlSpeed = 'Paused ');
-		elicit.addEventListener('retry',   event => loader.args.dlSpeed = 'Reoonnecting ');
-		elicit.addEventListener('retry',   event => console.log(event));
-
+		elicit.addEventListener('paused',    event => loader.args.dlSpeed = 'Paused ');
 		elicit.addEventListener('firstByte', event => loader.args.forward = true);
 
-		elicit.addEventListener('complete', event => setTimeout(() => {
-			if(file.substr(-3) === 'jpg' || file.substr(-3) === 'png')
+		elicit.addEventListener('complete',  event => setTimeout(() => {
+
+			const type = elicit.type.split(';').shift();
+
+			const [category, extension] = type.split('/');
+
+			if(category === 'image')
 			{
 				elicit.objectUrl().then(src => this.args.mediaView = new Image({src}));
 			}
 
-			if(file.substr(-3) === 'mp3' || file.substr(-3) === 'wav')
+			if(category === 'audio')
 			{
 				elicit.objectUrl().then(src => this.args.mediaView = new Audio({src}));
 			}
 
-			if(file.substr(-3) === 'mp4')
+			if(category === 'video')
 			{
 				elicit.objectUrl().then(src => this.args.mediaView = new Video({src}));
 			}
 
-			if(file.substr(-4) === 'html' || file.substr(-4) === 'json')
-			{
-				elicit.objectUrl().then(src => this.args.mediaView = new Doc({src}));
-			}
-
-			if(file.substr(-3) === 'pdf')
+			if(category === 'text' || category === 'application')
 			{
 				elicit.objectUrl().then(src => this.args.mediaView = new Doc({src}));
 			}
 
 			this.elicit = null;
-		}, 400));
-
-		elicit.open();
+		}));
 
 		let speedTimeout = null
 
@@ -135,7 +122,7 @@ export class FileIndex extends View
 			}, 500);
 
 			loader.args.received = Number(event.detail.received / 1024).toFixed(0);
-			loader.args.length   = Number(event.detail.length / 1024).toFixed(0);
+			loader.args.length   = Number(elicit.length / 1024).toFixed(0);
 			loader.args.done     = Number(event.detail.done * 100).toFixed(2);
 
 			if(event.detail.done === 1)
@@ -150,7 +137,7 @@ export class FileIndex extends View
 
 			if(elicit.speed < 1024)
 			{
-				loader.args.dlSpeed = Number(elicit.speed).toFixed(2) + ' KBps ';
+				loader.args.dlSpeed = Number(elicit.speed).toFixed(2) + ' kBps ';
 			}
 			else
 			{
@@ -171,14 +158,6 @@ export class FileIndex extends View
 	closeMediaView(event)
 	{
 		if(this.elicit)
-		{
-			!this.elicit.isPaused
-				? this.elicit.pause()
-				: this.elicit.unpause();
-			return;
-		}
-
-		if(this.elicit && !this.elicit.done)
 		{
 			this.elicit.cancel();
 		}
