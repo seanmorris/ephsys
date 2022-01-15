@@ -36,8 +36,7 @@ export class FileIndex extends View
 				return;
 			}
 
-			const tokenExpiry = Application.challenge.validThru;
-
+			const tokenExpiry    = Application.challenge.validThru;
 			this.args.validTimer = Math.max( 0, tokenExpiry - (Date.now() / 1000) ).toFixed(2);
 
 			if(!this.args.validTimer)
@@ -61,7 +60,9 @@ export class FileIndex extends View
 		elicit.addEventListener('firstByte', event => loader.args.forward = true);
 		elicit.addEventListener('paused',    event => loader.args.dlSpeed = 'Paused ');
 		elicit.addEventListener('complete',  event => setTimeout(() => {
+
 			this.elicit = null;
+
 			const type = elicit.type.split(';').shift();
 			const [category, extension] = type.split('/');
 
