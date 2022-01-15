@@ -14,7 +14,10 @@ export class Loader extends View
 		this.args.color       = '#FFF';
 		this.args.speed       = 0.333;
 
-		this.args.dlSpeed     = 0;
+		this.args.dlSpeed  = 0;
+		this.args.received = 0;
+		this.args.length   = 0;
+		this.args.done     = 0;
 		
 		this.args.bindTo('speed', v=>{
 			this.args.halfSpeed = v*3;
@@ -47,7 +50,7 @@ export class Loader extends View
 		let dots = 0;
 		this.args.elipsis = '   ';
 
-		this.onInterval(100, ()=>{
+		this.onInterval(250, ()=>{
 			const d = ++dots % 4;
 			this.args.elipsis = '.'.repeat(d) + ' '.repeat(3 - d);
 		});

@@ -35,5 +35,5 @@
 	<p>[[dlSpeed]][[done]]%</p>
 </div>
 <div cv-if = "!received" class = "loader-progress">
-	<pre>Waiting for Server[[elipsis]]</pre>
+	<pre>   Waiting for Server[[elipsis]]</pre>
 </div>

@@ -33,6 +33,9 @@ textarea {
 	padding-right: 1rem;
 	margin: 1rem;
 	text-align: center;
+	box-shadow: 0.0rem 0.5rem  0.25rem rgba(32,32,32,0.5);
+	min-width: 220px;
+	user-select: none;
 }
 
 .loader-progress:empty {
@@ -44,7 +47,7 @@ textarea {
 }
 
 .media-view:not(:empty) {
-	background-color: rgba(0,0,0,0.5);
+	background-color: rgba(0,0,0,0.666);
 }
 
 .media-view img,
@@ -52,14 +55,20 @@ textarea {
 .media-view video,
 .media-view iframe {
 	margin: auto;
-	max-width: 70%;
-	max-height: 70%;
+	max-width: 85%;
+	max-height: 85%;
+}
+
+.media-view img,
+.media-view video,
+.media-view iframe {
+	box-shadow: 0.0rem 0.5rem  0.25rem rgba(0,0,0,0.5);
 }
 
 
 .media-view iframe {
-	width: 70%;
-	height: 70%;
+	width: 85%;
+	height: 85%;
 	background-color: white;
 }
 
@@ -77,4 +86,26 @@ svg {
 
 small {
 	font-size: 11px;
+}
+
+button {
+	background: black;
+	color: white;
+	border: 0;
+	border-radius: 5px;
+	padding: 1rem;
+	padding-left: 2rem;
+	padding-right: 2rem;
+	font-size: 1.25rem;
+}
+
+button:active {
+	filter: invert(1);
+}
+
+li {
+	padding: 0.25rem;
+}
+li a {
+	padding: 0.5rem;
 }

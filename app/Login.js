@@ -17,7 +17,7 @@ export class Login extends View
 			this.args.status = Application.ERROR_NOTFOUND_WEB3;
 		}
 		
-		this.args.status = '...';
+		this.args.status = '';
 
 		const debind = Application.bindTo('userAddress', v => {
 			if(!v) { return; }
