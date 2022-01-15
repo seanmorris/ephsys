@@ -1,6 +1,7 @@
 import { rawquire } from 'rawquire/rawquire.macro';
 import { Elicit } from 'curvature/net/Elicit';
 import { View } from 'curvature/base/View';
+import { Tag } from 'curvature/base/Tag';
 
 import { Application } from './Application';
 import { Loader      } from './Loader';
@@ -21,18 +22,11 @@ export class FileIndex extends View
 	{
 		super(args, parent);
 
-		const loader = this.args.mediaView = new Loader;
-
-		this.args.mediaView = null;
-
 		Application.bindTo('token', v => {
 			if(!v) { return };
-
-			this.args.validTimer = Application.challenge.validThru - (Date.now() / 1000);
-
 			fetch(`${Config.mediaGate}/media`)
 			.then(response => response.json())
-			.then(response => this.args.files = response);
+			.then(response => this.args.files = response.map(f => f.replace(/\.\//, '')));
 		});
 
 		this.onFrame(() => {
@@ -42,9 +36,9 @@ export class FileIndex extends View
 				return;
 			}
 
-			this.args.validTimer = Number(Math.max(
-				0, Application.challenge.validThru - (Date.now() / 1000)).toFixed(2)
-			);
+			const tokenExpiry = Application.challenge.validThru;
+
+			this.args.validTimer = Math.max( 0, tokenExpiry - (Date.now() / 1000) ).toFixed(2);
 
 			if(!this.args.validTimer)
 			{
@@ -59,89 +53,65 @@ export class FileIndex extends View
 		event.preventDefault();
 
 		const Authorization = `Bearer ${JSON.stringify(Application.token)}`;
-		const loader = this.args.mediaView = new Loader;
+		const options  = {credentials: 'include', headers: { Authorization }};
+		const assetUrl = `${Config.mediaGate}/media/show?assetPath=${file}`;
+		const loader   = this.args.mediaView = new Loader;
+		const elicit   = this.elicit = new Elicit(assetUrl, options);
 
-		const options = {
-			credentials: 'include'
-			, headers: { Authorization }
-			, timeout: 7000
-		};
-
-		file = file.replace(/\.\//, '');
-
-		const elicit = new Elicit(`${Config.mediaGate}/media/show?assetPath=${file}`, options);
-
-		this.elicit = elicit;
-
-		elicit.addEventListener('paused',    event => loader.args.dlSpeed = 'Paused ');
 		elicit.addEventListener('firstByte', event => loader.args.forward = true);
-
+		elicit.addEventListener('paused',    event => loader.args.dlSpeed = 'Paused ');
 		elicit.addEventListener('complete',  event => setTimeout(() => {
-
+			this.elicit = null;
 			const type = elicit.type.split(';').shift();
-
 			const [category, extension] = type.split('/');
 
-			if(category === 'image')
-			{
-				elicit.objectUrl().then(src => this.args.mediaView = new Image({src}));
-			}
+			elicit.objectUrl().then(src => {
+				switch(category)
+				{
+					case 'text': case 'application':
+						this.args.mediaView = new Doc({src});
+						break;
 
-			if(category === 'audio')
-			{
-				elicit.objectUrl().then(src => this.args.mediaView = new Audio({src}));
-			}
+					case 'image':
+						this.args.mediaView = new Image({src});
+						break;
 
-			if(category === 'video')
-			{
-				elicit.objectUrl().then(src => this.args.mediaView = new Video({src}));
-			}
+					case 'audio':
+						this.args.mediaView = new Audio({src});
+						break;
 
-			if(category === 'text' || category === 'application')
-			{
-				elicit.objectUrl().then(src => this.args.mediaView = new Doc({src}));
-			}
+					case 'video':
+						this.args.mediaView = new Video({src});
+						break;
 
-			this.elicit = null;
+					default:
+						new Tag('<a download>').attr({'href': src}).click();
+						this.args.mediaView = null;
+				}
+			});
 		}));
 
 		let speedTimeout = null
 
 		elicit.addEventListener('progress', event => {
 
-			if(speedTimeout)
-			{
-				clearTimeout(speedTimeout);
-			}
-
-			speedTimeout = setTimeout(() => {
-				if(!elicit.isPaused)
-				{
-					loader.args.dlSpeed = '0 KBps ';
-				}
-			}, 500);
-
-			loader.args.received = Number(event.detail.received / 1024).toFixed(0);
-			loader.args.length   = Number(elicit.length / 1024).toFixed(0);
-			loader.args.done     = Number(event.detail.done * 100).toFixed(2);
-
-			if(event.detail.done === 1)
-			{
-				loader.args.speed = 0.1515;
-			}
+			speedTimeout && clearTimeout(speedTimeout);
+			speedTimeout = this.onTimeout(750, ()=> elicit.isPaused || (loader.args.dlSpeed = '0 KBps '));
 
 			if(elicit.isPaused)
-			{
-				return;
-			}
+			{ return; }
+
+			loader.args.received = (event.detail.received / 1024).toFixed(0);
+			loader.args.length   = (elicit.length / 1024).toFixed(0);
+			loader.args.done     = (event.detail.done * 100).toFixed(2);
 
 			if(elicit.speed < 1024)
 			{
-				loader.args.dlSpeed = Number(elicit.speed).toFixed(2) + ' kBps ';
+				loader.args.dlSpeed = (elicit.speed).toFixed(2) + ' kBps ';
 			}
 			else
 			{
-				loader.args.dlSpeed = Number(elicit.speed / 1024).toFixed(2) + ' MBps ';
+				loader.args.dlSpeed = (elicit.speed / 1024).toFixed(2) + ' MBps ';
 			}
 		});
 
@@ -149,29 +119,27 @@ export class FileIndex extends View
 			if(this.args.mediaView)
 			{
 				this.args.mediaView.remove();
+				this.args.mediaView = null;
 			}
-
-			this.args.mediaView = null;
 		});
 	}
 
 	closeMediaView(event)
 	{
-		if(this.elicit)
-		{
-			this.elicit.cancel();
-		}
+		if(event.target.matches('div.media-view'))
+		{ return; }
 
-		if(!event.target.matches('div.media-view'))
-		{
-			return;
-		}
+		this.elicit && this.elicit.cancel();
 
 		if(this.args.mediaView)
 		{
 			this.args.mediaView.remove();
+			this.args.mediaView = null;
 		}
+	}
 
-		this.args.mediaView = null;
+	wheelMediaView(event)
+	{
+		event.preventDefault();
 	}
 }
