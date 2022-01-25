@@ -80,7 +80,7 @@ textarea {
 	background-color: #FFF;
 }
 
-svg {
+svg.loader {
 	width: 120px;
 	margin: 1rem;
 }
@@ -109,4 +109,21 @@ li {
 }
 li a {
 	padding: 0.5rem;
+}
+
+.row {
+	display: flex;
+	flex-direction: row;
+}
+
+p button {
+	margin-right: 1rem;
+}
+
+.right {
+	text-align: right;
+}
+
+#cc-input:empty + * {
+	display: none;
 }

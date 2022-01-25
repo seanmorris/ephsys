@@ -1,7 +1,7 @@
 import { rawquire } from 'rawquire/rawquire.macro';
-import { Elicit } from 'curvature/net/Elicit';
-import { View } from 'curvature/base/View';
-import { Tag } from 'curvature/base/Tag';
+import { Elicit   } from 'curvature/net/Elicit';
+import { View     } from 'curvature/base/View';
+import { Tag      } from 'curvature/base/Tag';
 
 import { Application } from './Application';
 import { Loader      } from './Loader';
@@ -24,9 +24,10 @@ export class FileIndex extends View
 
 		Application.bindTo('token', v => {
 			if(!v) { return };
-			fetch(`${Config.mediaGate}/media`)
-			.then(response => response.json())
-			.then(response => this.args.files = response.map(f => f.replace(/\.\//, '')));
+
+			new Elicit(`${Config.mediaGate}/media`).json().then(
+				response => this.args.files = response.map(f => f.replace(/\.\//, ''))
+			);
 		});
 
 		this.onFrame(() => {
@@ -52,14 +53,16 @@ export class FileIndex extends View
 		event.preventDefault();
 
 		const Authorization = `Bearer ${JSON.stringify(Application.token)}`;
-		const options  = {credentials: 'include', headers: { Authorization }};
+		const options  = {credentials: 'include', timeout: 10000, headers: { Authorization }};
 		const assetUrl = `${Config.mediaGate}/media/show?assetPath=${file}`;
 		const loader   = this.args.mediaView = new Loader;
 		const elicit   = this.elicit = new Elicit(assetUrl, options);
 
 		elicit.addEventListener('firstByte', event => loader.args.forward = true);
 		elicit.addEventListener('paused',    event => loader.args.dlSpeed = 'Paused ');
-		elicit.addEventListener('complete',  event => setTimeout(() => {
+		elicit.addEventListener('fail',      event => this.closeMediaView());
+
+		elicit.addEventListener('complete', event => this.onTimeout(500, () => {
 
 			this.elicit = null;
 
@@ -67,6 +70,7 @@ export class FileIndex extends View
 			const [category, extension] = type.split('/');
 
 			elicit.objectUrl().then(src => {
+
 				switch(category)
 				{
 					case 'text': case 'application':
@@ -87,7 +91,7 @@ export class FileIndex extends View
 
 					default:
 						new Tag('<a download>').attr({'href': src}).click();
-						this.args.mediaView = null;
+
 				}
 			});
 		}));
@@ -115,19 +119,11 @@ export class FileIndex extends View
 				loader.args.dlSpeed = (elicit.speed / 1024).toFixed(2) + ' MBps ';
 			}
 		});
-
-		elicit.addEventListener('fail', event => {
-			if(this.args.mediaView)
-			{
-				this.args.mediaView.remove();
-				this.args.mediaView = null;
-			}
-		});
 	}
 
 	closeMediaView(event)
 	{
-		if(event.target.matches('div.media-view'))
+		if(event && !event.target.matches('div.media-view'))
 		{ return; }
 
 		this.elicit && this.elicit.cancel();

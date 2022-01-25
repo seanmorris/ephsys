@@ -6,6 +6,7 @@ export const Application = window.Application = Bindable.make(class {
 
 	userAddress;
 	_web3;
+	_brainTree;
 	message;
 	price;
 
@@ -120,6 +121,50 @@ export const Application = window.Application = Bindable.make(class {
 			}
 			, (err, res) => console.log(err, res)
 		);
+	}
+
+	static initBrainTree()
+	{
+
+		const selector = '#cc-input';
+		const button = document.querySelector('#cc-submit');
+
+		fetch(`${Config.mediaGate}/purchase/ccToken`)
+		.then(r => r.text())
+		.then(authorization => braintree.dropin.create({authorization, selector}, (err, instance) => {
+				Application._brainTree = instance;
+				console.log(instance);
+				button.addEventListener('click', () => Application.subscribeWithBrainTree())
+			}
+		));
+
+	}
+
+	static subscribeWithBrainTree(nonce)
+	{
+		Application._brainTree.requestPaymentMethod((err, payload) => {
+			const method = 'POST';
+			const body   = new FormData;
+
+			body.append('nonce',   payload.nonce);
+			body.append('address', Application.userAddress);
+			body.append('amount',  '5.00');
+
+			const options = {method, body};
+
+			fetch(`${Config.mediaGate}/purchase/ccPay`, options)
+			.then(response => response.text())
+			.then(response => {
+
+				if(response === 'OK!')
+				{
+					console.log(response);
+
+					Application._brainTree = null;
+				}
+
+			});
+		});
 	}
 
 	static getSubscription()
